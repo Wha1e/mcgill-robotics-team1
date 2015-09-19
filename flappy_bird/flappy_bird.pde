@@ -4,7 +4,7 @@ boolean started;
 LinkedList<Pipe> pipes = new LinkedList<Pipe>();
 Bird aBird = new Bird();
 boolean recentlyJumped = false;
-boolean userControlled = true;
+boolean userControlled = false;
 
 
 class Bird{
@@ -21,12 +21,6 @@ class Bird{
     this.acceleration = new PVector(0, 0.15);
     this.jumpAccel = new PVector(0, -0.5);
     this.topSpeed = 10;
-  }
-  
-  void hover(){
-    if(frameCount % 39 == 0 ){
-      aBird.jump();
-    }
   }
   
   void jump(){
@@ -86,8 +80,6 @@ void setup(){
 
 void draw(){
   background(255);
-  
-  aBird.hover();
   
   if( frameCount % 10 == 0 ){
     recentlyJumped = false;

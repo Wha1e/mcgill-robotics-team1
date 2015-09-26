@@ -7,4 +7,4 @@ Ke Zhang, U1 Software Engineering
 Amine Nouri, U2 Electrical Engineering  
 Hoyoung Kang, U1 Mechanical Engineering  
 Yasasa Abeysirigoonawardena, U0 Computer Engineering  
-Ananya Chandra, U0 Electrical Engineering  
+Ananya Chandra, U1 Electrical Engineering  

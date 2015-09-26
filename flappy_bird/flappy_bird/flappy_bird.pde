@@ -8,7 +8,7 @@ Bird aBird = new Bird();
 boolean recentlyJumped = false;
 boolean userControlled = false;
 int controlState = 2;
-int flightState= 0;
+int flightState;
 boolean hovering = true;
 int lastHoverCall = 0;
 
@@ -77,7 +77,7 @@ class Pipe{
     // lower half
     stroke(126);
     fill(0);
-    rect(xLoc, this.gap + 100, 100, height);
+    rect(xLoc, this.gap + 150, 100, height);
   }
 }
 
@@ -86,9 +86,9 @@ void hover(int timeCalled){
     hovering = true;
     lastHoverCall = timeCalled;
   }
-  int delay = (millis() - lastHoverCall) % 320;
-  if( delay < 150 ){
-    arduino.analogWrite(servoPin, 11);
+  int delay = (millis() - lastHoverCall) % 338 ;
+  if( delay < 25 ){
+    arduino.analogWrite(servoPin, 6);
   }else{
     arduino.analogWrite(servoPin, 0);
   }
@@ -98,6 +98,7 @@ void setup(){
   frameRate(120);
   size(1000, 700);
   background(255);
+  flightState = 2;
   
   arduino = new Arduino(this, Arduino.list()[2], 57600);
   arduino.pinMode(servoPin, Arduino.OUTPUT);
@@ -115,6 +116,8 @@ void draw(){
   
   if( !started ){
     aBird.drawBird();
+    
+    flightState = 2;
     
     if( keyPressed && key ==' ' ){
       started = true;
@@ -135,9 +138,10 @@ void draw(){
     }
     
     if( pipes.size() > 0 ){
-      if( pipes.getFirst().xLoc < aBird.location.x + 13 && pipes.getFirst().xLoc + 50 > aBird.location.x - 13
-        && (pipes.getFirst().gap > aBird.location.y - 13 || pipes.getFirst().gap + 100 < aBird.location.y + 13 ) ){
+      if( pipes.getFirst().xLoc < aBird.location.x + 13 && pipes.getFirst().xLoc + 100 > aBird.location.x - 13
+        && (pipes.getFirst().gap > aBird.location.y - 13 || pipes.getFirst().gap + 150 < aBird.location.y + 13 ) ){
         started = false;
+        flightState = 2;
         aBird = new Bird();
         pipes = new LinkedList<Pipe>();
       }
@@ -150,7 +154,7 @@ void draw(){
     }
     
     for( int i = 0; i < pipes.size(); i++ ){
-      if( pipes.get(i).xLoc + 100 <= 0 ){
+      if( pipes.get(i).xLoc + 100 <= 0){
         pipes.remove(i);
       }
       pipes.get(i).updatePipe();
@@ -180,7 +184,7 @@ void draw(){
       
       if( flightState == 0 ){
         hovering = false;
-        arduino.analogWrite(servoPin, 11);
+        arduino.analogWrite(servoPin, 6);
       }
       else if( flightState == 1 ){
         hover(millis());
@@ -189,9 +193,54 @@ void draw(){
         hovering = true;
         arduino.analogWrite(servoPin, 0);
       }
+      
+      /**
+      if( pipes.size() > 1 ){
+        if( aBird.location.y > pipes.get(0).gap + 100 && pipes.get(0).xLoc + 100 > aBird.location.x){
+          flightState = 0; // bird flies up
+        }
+        else if( aBird.location.y > pipes.get(0).gap && aBird.location.y < pipes.get(0).gap + 200 && pipes.get(0).xLoc < aBird.location.x && pipes.get(1).xLoc + 100 > aBird.location.x ){
+          flightState = 1; // bird hovers
+        }
+        else if( aBird.location.y > pipes.get(1).gap && aBird.location.y < pipes.get(1).gap + 200 && pipes.get(0).xLoc + 100 < aBird.location.x && pipes.get(1).xLoc > aBird.location.x){
+          flightState = 1; // bird hovers
+        }
+        else if( aBird.location.y > pipes.get(1).gap + 100 && pipes.get(0).xLoc + 100 < aBird.location.x ){
+          flightState = 0; // 
+        }
+        else{
+          flightState = 2;
+        }
+      }
+      else{
+        if( aBird.location.y > 200 ){
+          flightState = 1;
+        }
+      }
+      **/
+      if(pipes.size() < 3){
+        flightState = 1;
+      }
+      else{
+        for( int i = 0; i < pipes.size(); i++ ){
+          if( pipes.get(i).xLoc <= 325 && pipes.get(i).xLoc > 75 ){
+            int targetHeight = pipes.get(i).gap + 75;
+            
+            if( aBird.location.y < targetHeight - 47    ){
+              flightState = 2;
+            }
+            else if( aBird.location.y > targetHeight + 40 ){
+              flightState = 0;
+            }
+            else{
+              flightState = 1;
+            }
+          }
+        }
+      }
+      
+      aBird.updateBird();
+      aBird.drawBird();
     }
-
-    aBird.updateBird();
-    aBird.drawBird();
   }
 }
